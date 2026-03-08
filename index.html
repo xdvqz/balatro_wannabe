@@ -20,7 +20,7 @@ canvas{position:fixed;inset:0;pointer-events:none;z-index:400}
 
 /* ── SCREENS: all fullscreen ── */
 .scr{display:none;position:fixed;inset:0}
-.scr.on{display:block}
+.scr.on{display:flex;justify-content:center}
 
 /* ══════════════════════════════════════════
 TITLE SCREEN
@@ -29,6 +29,7 @@ TITLE SCREEN
 display:none;
 background:radial-gradient(ellipse at 50% 32%,#1e0840,#07050f 70%);
 overflow:hidden;
+align-items:center;
 }
 #T.on{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px}
 .tbg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -66,7 +67,23 @@ background:#0e3d2e;
 background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.025) 0,rgba(0,0,0,.025) 1px,transparent 1px,transparent 50%);
 background-size:28px 28px;
 }
-#G.on{display:block}
+#G.on{display:flex;justify-content:center}
+
+/* Desktop: dark sidebar outside game box */
+#G.on::before{
+content:’’;position:fixed;inset:0;
+background:repeating-linear-gradient(45deg,rgba(0,0,0,.04) 0,rgba(0,0,0,.04) 1px,transparent 1px,transparent 50%);
+background-size:20px 20px;z-index:-1;
+}
+
+/* Game box: centered column, max 480px wide */
+#gbox{
+position:relative;
+width:100%;max-width:480px;
+height:100vh;height:100dvh;
+overflow:hidden;
+box-shadow:0 0 60px rgba(0,0,0,.8);
+}
 
 /* Fixed-height zones (px), computed in JS based on window height */
 /* We define them as CSS vars set by JS */
@@ -312,7 +329,9 @@ white-space:nowrap;pointer-events:none;z-index:100;animation:bub .72s ease forwa
 SHOP
 ══════════════════════════════════════════ */
 #S{display:none;overflow-y:auto;background:radial-gradient(ellipse at 50% 0%,#170640,#07050f 60%)}
-#S.on{display:flex;flex-direction:column;align-items:center;padding:20px 14px;gap:16px}
+#S.on{display:flex;flex-direction:column;align-items:center;padding:20px 14px;gap:16px;justify-content:flex-start}
+/* Shop inner content max width */
+#S > *{width:100%;max-width:480px}
 .shh{text-align:center}.sht{font-family:‘Press Start 2P’,monospace;font-size:16px;color:var(–gold);text-shadow:0 0 14px rgba(255,215,0,.4)}
 .shmn{font-family:‘Press Start 2P’,monospace;font-size:18px;color:var(–green);margin-top:6px}
 .shsec{width:100%;max-width:860px}.shsl{font-family:‘Press Start 2P’,monospace;font-size:7px;color:var(–dim);letter-spacing:3px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:5px}
@@ -364,6 +383,7 @@ POPUP / NOTIF / MISC
 <!-- ═══ GAME ═══ -->
 
 <div id="G" class="scr">
+<div id="gbox">
 
   <!-- TOP BAR -->
 
@@ -438,7 +458,9 @@ POPUP / NOTIF / MISC
     <button class="abtn s" onclick="sortH('rank')">RANK</button>
     <button class="abtn s" onclick="sortH('suit')">SUIT</button>
   </div>
-</div>
+
+</div><!-- /gbox -->
+</div><!-- /G -->
 
 <!-- ═══ SHOP ═══ -->
 
@@ -464,7 +486,9 @@ POPUP / NOTIF / MISC
 // LAYOUT ENGINE — compute all zone positions from screen
 // ══════════════════════════════════════════════════════
 function computeLayout() {
-  const W = innerWidth, H = innerHeight;
+  const box = document.getElementById('gbox');
+  const W = box ? box.clientWidth : Math.min(innerWidth, 480);
+  const H = innerHeight;
   const el = document.documentElement.style;
 
   const TBH = 50, PBH = 18, ABH = 54;
